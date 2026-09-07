@@ -1,0 +1,37 @@
+# Everything here is either generated, machine-specific, or secret. What IS committed is
+# everything needed to build and develop: sources, the voice clips and the artwork they are
+# cut from, the Gradle wrapper, and the docs.
+
+# Build output
+/build
+/app/build
+.gradle/
+.kotlin/
+.cxx/
+/captures
+.externalNativeBuild
+
+# Machine-specific: SDK location, IDE state, OS clutter
+local.properties
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Signing material NEVER belongs in the repository
+*.jks
+*.keystore
+keystore.properties
+*.p12
+*.pem
+google-services.json
+
+# Python bytecode from tools/
+__pycache__/
+*.pyc
+
+# The Piper voice model: a 63MB build TOOL, fetched by tools/get_piper_voice.sh.
+# The clips it produces are committed — they are build inputs, and the build must never
+# need the network.
+tools/voices/*.onnx
+tools/voices/*.onnx.json

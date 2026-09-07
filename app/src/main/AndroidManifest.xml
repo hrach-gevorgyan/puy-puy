@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- No permissions at all. No network, ever. -->
+
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:supportsRtl="false"
+        android:theme="@style/Theme.Puypuy">
+        <!--
+          emoji2's initializer does a font-provider IPC to Google Play Services on every cold
+          start. The app renders no emoji and declares no INTERNET permission, but "nothing
+          leaves the device" should be true of the merged manifest, not just of our own code.
+          ProfileInstaller is kept: it is local and it helps startup.
+        -->
+        <!--
+          tools:ignore="MissingClass" — the class is real and on the runtime classpath
+          (androidx.startup:startup-runtime, pulled in by Compose); lint resolves manifest
+          class names against project sources only and cannot see it.
+        -->
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge"
+            tools:ignore="MissingClass">
+            <meta-data
+                android:name="androidx.emoji2.text.EmojiCompatInitializer"
+                tools:node="remove" />
+        </provider>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:screenOrientation="user"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|smallestScreenSize|density"
+            android:theme="@style/Theme.Puypuy">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

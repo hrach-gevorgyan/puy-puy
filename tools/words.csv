@@ -1,0 +1,109 @@
+# words.csv — every spoken clip in the app, key,text
+#
+# All of it is Պույ-պույ. See docs/audio.md for how the set is generated and for the
+# rules each group follows. Keys must be lowercase letters, digits and
+# underscores: they become res/raw resource names.
+
+# --- The greeting
+# Played once when the app opens, over his wave. Long on purpose: it is the
+# only time he gets to introduce himself, and it is the first thing the child
+# hears, so it sets the voice for everything after it.
+intro,Բարև՜։ Ես Պույ-պույն եմ։ Ազգանունս Ճստունի է։ Արի՛ միասին խաղանք։
+
+# --- The hub
+hub_what_to_play,Ի՞նչ խաղանք
+hub_hello_again,Բարև՜, նորի՞ց ես եկել
+hub_pick_one,Ընտրի՛ր մեկը
+
+# --- When he has been left waiting
+# He does NOT make small talk. If nothing has happened he repeats the thing that
+# actually helps — the colour, the animal — because anything else is noise, and
+# noise is what gets an app muted.
+
+# --- Waking up
+wake_oh,Օ՜, ես քնել էի
+wake_hello,Բարև՜, արթնացա
+
+# --- Փուչիկներ — balloons
+
+# --- Fruit (kept: the puzzle pictures use the fruit artwork)
+
+# --- Պահմտոցի — hide and seek
+coconut_who_is_there,Ո՞վ է թաքնվել
+coconut_here_i_am,Ես այստե՛ղ եմ
+
+# --- Նկարի՛ր — painting
+paint_start,Արի՛ նկարենք
+paint_nice,Ի՜նչ գեղեցիկ է
+paint_clean,Մաքրե՛նք ու նորից նկարենք
+
+# --- Praise
+# Rare: exactly one per ten things she gets right, or they stop meaning anything.
+praise_1,Ապրե՛ս
+praise_2,Շատ լավ
+praise_3,Կեցցե՛ս
+praise_4,Հրաշալի է
+praise_5,Ճի՛շտ է
+praise_6,Դու կարողացա՛ր
+praise_7,Ի՜նչ լավ ես անում
+praise_8,Այո՛, ապրե՛ս
+
+# --- Colours
+color_red,կարմիր
+color_blue,կապույտ
+color_yellow,դեղին
+color_green,կանաչ
+color_orange,նարնջագույն
+color_purple,մանուշակագույն
+
+# --- Fruit
+food_apple,խնձոր
+food_orange,նարինջ
+food_banana,բանան
+food_pear,տանձ
+food_strawberry,ելակ
+food_grapes,խաղող
+food_coconut,կոկոս
+food_mango,մանգո
+
+# --- Shapes
+# Named as a shape lands in its hole, never asked for.
+shape_circle,շրջան
+shape_square,քառակուսի
+shape_triangle,եռանկյուն
+shape_star,աստղ
+shape_heart,սիրտ
+
+# --- Animals
+animal_crab,խեցգետին
+animal_fish,ձուկ
+animal_seagull,ճայ
+animal_turtle,կրիա
+animal_starfish,ծովաստղ
+animal_octopus,ութոտնուկ
+animal_frog,գորտ
+animal_butterfly,թիթեռ
+animal_snail,խխունջ
+animal_bee,մեղու
+animal_duck,բադ
+animal_cat,կատու
+
+# --- His name
+
+# --- Game names
+game_balloons,Փուչիկներ
+game_coconuts,Պահմտոցի
+game_shapes,Ձևե՛ր
+game_puzzle,Փազլ
+game_paint,Նկարի՛ր
+game_stack,Կառուցի՛ր
+
+# --- Sizes — Կառուցի՛ր
+size_big,մեծ
+size_small,փոքր
+
+# --- Encouragement
+encourage_again,Կրկի՛ն փորձիր
+encourage_nothing,Ոչինչ
+encourage_more,Էլի՛ փորձիր
+encourage_close,Բան չմնաց

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Puypuy" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/sand</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <!--
+          The ground behind the status bar is always pale sand or a white page, so the icons
+          must be dark. Set here as well as in code: on some skins the system re-applies the
+          theme value after the controller has run, and the clock disappears again.
+        -->
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- Explicitly NOT fullscreen: the parent theme used to be the .Fullscreen variant,
+             which deleted the status bar outright. -->
+        <item name="android:windowFullscreen">false</item>
+    </style>
+
+    <!--
+      The app draws to every edge, so on a device with a punch-hole or a notch the cut-out
+      would otherwise sit on top of the home button. shortEdges lets us draw there and the
+      safe-area padding in the Compose tree keeps controls out from under it.
+    -->
+    <style name="Theme.Puypuy.V28" parent="Theme.Puypuy" />
+</resources>

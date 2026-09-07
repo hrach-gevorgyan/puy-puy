@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- §2.3: the same little house, same place, in all four games. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <path android:fillColor="#E0483C"
+        android:pathData="M24,6L4,24h6v18h28V24h6z" />
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M20,30h8v12h-8z" />
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.85"
+        android:pathData="M14,26h6v6h-6z" />
+    <path android:fillColor="#FFFFFF" android:fillAlpha="0.85"
+        android:pathData="M28,26h6v6h-6z" />
+</vector>

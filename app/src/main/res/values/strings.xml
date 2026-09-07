@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Պույ-պույ</string>
+
+    <!-- Hub tile names. The picture is what she navigates by; the word is for the
+         grown-up, and so the name is in front of her in her own alphabet. -->
+    <string name="game_balloons">Փուչիկներ</string>
+    <string name="game_feed">Կերակրի՛ր</string>
+    <string name="game_coconuts">Պահմտոցի</string>
+    <string name="game_shapes">Ձևե՛ր</string>
+    <string name="game_puzzle">Փազլ</string>
+    <string name="game_paint">Նկարի՛ր</string>
+    <string name="game_stack">Կառուցի՛ր</string>
+</resources>

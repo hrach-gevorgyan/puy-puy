@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Every clip is addressed by NAME at runtime (Audio.resId -> getIdentifier), and several of
+  those names are built by concatenation: "praise_$it", "star_$note", animal.sound. So there
+  is not a single R.raw reference anywhere in Kotlin, and the resource shrinker has no way to
+  see that any of these files are used.
+
+  Without this, the release APK ships silent while the debug build sounds fine.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@raw/*" />

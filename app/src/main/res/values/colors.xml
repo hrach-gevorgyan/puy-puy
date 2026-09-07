@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Only what the window needs before Compose draws. The real palette is
+         core/Palette.kt, shared with hashvir. -->
+    <color name="sand">#FFFDF3E0</color>
+    <color name="lagoon">#FFDDF1F2</color>
+</resources>

@@ -1,0 +1,87 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      # The voice clips and the artwork are committed, so nothing here reaches the network
+      # for assets — only for Gradle dependencies.
+      - name: Unit tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Lint
+        run: ./gradlew lint
+
+      # `secrets` is in scope for a step-level `if`; a step's own `env:` block is NOT, and a
+      # gate written that way is always false — which silently ships every release unsigned.
+      - name: Restore signing key
+        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        run: |
+          set -euo pipefail
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > release.jks
+          cat > keystore.properties <<EOF
+          storeFile=release.jks
+          storePassword=${{ secrets.KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.KEY_ALIAS }}
+          keyPassword=${{ secrets.KEY_PASSWORD }}
+          EOF
+
+      - name: Build release APK
+        run: ./gradlew assembleRelease
+
+      - name: Name the APK
+        id: apk
+        run: |
+          set -euo pipefail
+          path=$(find app/build/outputs/apk/release -name '*.apk' | head -1)
+          version=${GITHUB_REF_NAME#v}
+          [ "${GITHUB_REF_TYPE}" = "tag" ] || version=${GITHUB_SHA::7}
+          cp "$path" "puypuy-${version}.apk"
+          echo "file=puypuy-${version}.apk" >> "$GITHUB_OUTPUT"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: puypuy-apk
+          path: ${{ steps.apk.outputs.file }}
+          if-no-files-found: error
+
+      - name: Publish release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.apk.outputs.file }}
+          generate_release_notes: true
+          body: |
+            Install the APK on an Android device running **Android 7.0 or newer**.
+
+            Works on a phone or a tablet, portrait or landscape. Nothing to sign in to,
+            no network, no permissions to grant.
+
+      # Never leave the key on the runner, whatever happened above.
+      - name: Remove signing material
+        if: always()
+        run: rm -f release.jks keystore.properties

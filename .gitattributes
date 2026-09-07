@@ -1,0 +1,20 @@
+# One line ending everywhere. Without this, every file touched on Windows is staged with
+# CRLF and git warns on every add; the repository stores LF and checkouts get whatever the
+# platform wants.
+* text=auto eol=lf
+
+# Anything binary must never be "fixed".
+*.png binary
+*.webp binary
+*.jpg binary
+*.ogg binary
+*.ttf binary
+*.otf binary
+*.onnx binary
+*.jar binary
+*.keystore binary
+*.jks binary
+
+# The wrapper must stay executable and LF, whatever the platform.
+gradlew text eol=lf
+*.sh text eol=lf
