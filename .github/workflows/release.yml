@@ -15,6 +15,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    # Lifted to JOB level on purpose. A step's own `env:` is not in scope for that step's own
+    # `if:`, and neither is `secrets` — using either there is the difference between a release
+    # that is silently unsigned and a workflow that will not parse at all. Job-level env is in
+    # scope, so the gate below works.
+    env:
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+
     steps:
       - uses: actions/checkout@v4
 
@@ -35,10 +42,8 @@ jobs:
       - name: Lint
         run: ./gradlew lint
 
-      # `secrets` is in scope for a step-level `if`; a step's own `env:` block is NOT, and a
-      # gate written that way is always false — which silently ships every release unsigned.
       - name: Restore signing key
-        if: ${{ secrets.KEYSTORE_BASE64 != '' }}
+        if: ${{ env.KEYSTORE_BASE64 != '' }}
         run: |
           set -euo pipefail
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > release.jks
