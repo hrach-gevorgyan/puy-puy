@@ -73,6 +73,10 @@ shape_square,քառակուսի
 shape_triangle,եռանկյուն
 shape_star,աստղ
 shape_heart,սիրտ
+shape_rectangle,ուղղանկյուն
+shape_oval,օվալ
+shape_diamond,շեղանկյուն
+shape_crescent,մահիկ
 
 # --- Animals
 animal_crab,խեցգետին

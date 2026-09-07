@@ -106,15 +106,18 @@ class PuzzleGame : MiniGame {
         var area by remember { mutableStateOf(IntSize.Zero) }
         var clock by remember { mutableFloatStateOf(0f) }
 
-        val safeTop = with(density) { Layout.HomeSafe.toPx() }
-        val frame = remember(area) {
-            val span = minOf(area.width * 0.86f, (area.height - safeTop) * 0.48f)
+        // Sizes and places are arithmetic, so they live in Layout where LayoutTest asserts
+        // them. Inline, the tray always went under the board, which starved it on a wide short
+        // screen: a phone held sideways got 34dp pieces against a 126dp touch floor.
+        val geom = with(density) { Layout.puzzle(area.width.toDp(), area.height.toDp()) }
+        val frame = with(density) {
             Rect(
-                offset = Offset((area.width - span) / 2f, safeTop + span * 0.10f),
-                size = Size(span, span),
+                offset = Offset(geom.boardX.toPx(), geom.boardY.toPx()),
+                size = Size(geom.board.toPx(), geom.board.toPx()),
             )
         }
         val cell = frame.width / COLS
+        val trayCell = with(density) { geom.trayCell.toPx() }
 
         FrameLoop(particles = fx, shake = quake) { dt -> clock += dt }
 
@@ -122,16 +125,11 @@ class PuzzleGame : MiniGame {
             if (area.width == 0) return@LaunchedEffect
             pieces.clear()
             celebrating = false
-            val restY = area.height - cell * 0.85f
             var i = 0
             for (r in 0 until ROWS) for (c in 0 until COLS) {
                 val home = Offset(frame.left + (c + 0.5f) * cell, frame.top + (r + 0.5f) * cell)
-                // Nine pieces do not fit across a phone in one row, so they rest in two.
-                val perRow = (ROWS * COLS + 1) / 2
-                val start = Offset(
-                    area.width * (i % perRow + 0.5f) / perRow,
-                    restY - (i / perRow) * cell * 0.95f,
-                )
+                val spot = geom.tray[i]
+                val start = with(density) { Offset(spot.first.toPx(), spot.second.toPx()) }
                 pieces += Piece(r, c, home, start)
                 i++
             }
@@ -208,17 +206,16 @@ class PuzzleGame : MiniGame {
             Canvas(Modifier.fillMaxSize()) {
                 @Suppress("UNUSED_EXPRESSION") fx.tick
                 translate(quake.offsetX, quake.offsetY) {
-                    // The frame, with a faint ghost of the finished picture inside it.
+                    // The frame the picture is assembled inside.
                     drawRect(Color(0xFFE0CBA4).copy(alpha = 0.55f), frame.topLeft, frame.size)
                     drawRect(
                         Color(0xFFC4A87C), frame.topLeft, frame.size,
                         style = Stroke(width = cell * 0.05f),
                     )
-                    clipRect(frame.left, frame.top, frame.right, frame.bottom) {
-                        // Faint on purpose: a legible ghost is a solution sheet lying under
-                        // the board. This is a hint that a picture goes here, not which piece.
-                        drawPicture(picture, frame, 0.08f, clock)
-                    }
+                    // No ghost of the finished picture. Any version of it faint enough to be
+                    // a hint was still legible enough to be the answer, and a board with the
+                    // answer printed on it is not a puzzle. The frame and its grid say where
+                    // the pieces go; which piece goes where is hers to work out.
                     for (c in 1 until COLS) {
                         drawLine(
                             Color(0xFFC4A87C).copy(alpha = 0.5f),

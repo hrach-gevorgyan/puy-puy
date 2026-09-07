@@ -15,8 +15,8 @@ prison. Alone in the dark he cries, and cries, hour after hour, until the tears 
 every ounce he gained. At last he is light enough to slip through the hole, and he scampers
 home having learned something exhausting about eating too much.
 
-hashvir teaches the numbers 1–10. **This one teaches colours, and teaches them without ever
-asking a question.** That is the distinction, and it decides most arguments about scope.
+hashvir teaches the numbers 1–10. **This one teaches colours, shapes and size, and only one of
+its games ever asks a question.** That is the distinction, and it decides most arguments about scope.
 
 The owner overruled the earlier rule ("this one teaches nothing") in favour of a game that
 actually carries content. The constraint that survives is the one the research forces: she is
@@ -36,7 +36,7 @@ here has exactly one legal shape:
   which is the best part of building one, not a punishment.
 - **Teach by repetition and contrast, not by instruction.** The same word many times close
   together, with a different colour on screen beside it — how a colour is learned at a kitchen
-  table. `ColourRun` does this, and `ColourRunTest` asserts what a session actually sounds like.
+  table. `TeachingRun` does this, and `TeachingRunTest` asserts what a session actually sounds like.
 - **A child who ignores the teaching entirely is playing correctly.** If any change would make
   that untrue, it belongs in hashvir.
 

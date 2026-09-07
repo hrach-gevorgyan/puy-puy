@@ -210,6 +210,114 @@ class LayoutTest {
         }
     }
 
+    /**
+     * Ձևե՛ր laid its shapes out below its holes on a phone held sideways — the game was upside
+     * down — and capped their size at a fixed width, so a tablet got small shapes in wide
+     * columns. Neither needed a device to catch.
+     */
+    @Test
+    fun `shape holes sit above the sand the shapes are scattered on`() {
+        for ((name, size) in SCREENS) {
+            val (w, h) = size
+            val s = Layout.shapes(w, h)
+            val lowestHole = s.holes.maxOf { it.second }
+            assertTrue(
+                "$name: the scatter band starts at ${s.scatterTop.value}dp, over a hole at ${lowestHole.value}dp",
+                s.scatterTop >= lowestHole,
+            )
+            assertTrue("$name: a hole sits under the home button", s.holes.minOf { it.second } - s.size / 2f >= Layout.HomeSafe - 8.dp)
+            assertTrue("$name: the scatter band runs off the bottom", s.scatterBottom <= h)
+            assertTrue(
+                "$name: the scatter band is only ${(s.scatterBottom - s.scatterTop).value}dp for ${s.size.value}dp shapes",
+                s.scatterBottom - s.scatterTop >= s.size,
+            )
+        }
+    }
+
+    @Test
+    fun `there are enough shapes to choose between, and holes never overlap`() {
+        for ((name, size) in SCREENS) {
+            val (w, h) = size
+            val s = Layout.shapes(w, h)
+            // Six wherever there is room for six. A 320dp-tall split-screen window is not
+            // such a place, and three shapes that fit beats six that do not.
+            assertTrue("$name: only ${s.count} shapes", s.count >= 3)
+            if (h >= 400.dp && w >= 400.dp) {
+                assertTrue("$name: only ${s.count} shapes on a screen with room for six", s.count >= 6)
+            }
+            // Small DRAWINGS are fine — the game holds the touch target at 126dp with its own
+            // floor — but below this they stop being recognisable as shapes.
+            assertTrue("$name: shape ${s.size.value}dp is too small to see", s.size >= 40.dp)
+            for (i in s.holes.indices) {
+                for (j in i + 1 until s.holes.size) {
+                    val (ax, ay) = s.holes[i]
+                    val (bx, by) = s.holes[j]
+                    val apart = kotlin.math.abs((ax - bx).value) >= s.size.value ||
+                        kotlin.math.abs((ay - by).value) >= s.size.value
+                    assertTrue("$name: holes $i and $j overlap", apart)
+                }
+                assertTrue("$name: a hole hangs off the side", s.holes[i].first + s.size / 2f <= w)
+            }
+        }
+        // A tablet does not get BIGGER shapes — with six across, the columns work out much the
+        // same — it gets them in one row instead of two, and more room to scatter them in.
+        val phone = Layout.shapes(411.dp, 891.dp)
+        val tablet = Layout.shapes(800.dp, 1280.dp)
+        assertTrue("a tablet scatters into no more room than a phone",
+            (tablet.scatterBottom - tablet.scatterTop) > (phone.scatterBottom - phone.scatterTop))
+    }
+
+    /**
+     * Փազլ always put its tray under the board, which starved the board on a wide, short
+     * screen: a phone held sideways got 34dp pieces against a 126dp touch floor.
+     */
+    @Test
+    fun `puzzle pieces stay big enough to pick up`() {
+        for ((name, size) in SCREENS) {
+            val p = Layout.puzzle(size.first, size.second)
+            assertTrue("$name: a piece is only ${p.cell.value}dp on the board", p.cell >= 45.dp)
+            assertTrue("$name: a waiting piece is only ${p.trayCell.value}dp", p.trayCell >= 40.dp)
+        }
+        val landscape = Layout.puzzle(640.dp, 360.dp).cell
+        assertTrue("a phone held sideways got ${landscape.value}dp pieces", landscape >= 55.dp)
+    }
+
+    @Test
+    fun `the puzzle board is on the screen and clear of the home button`() {
+        for ((name, size) in SCREENS) {
+            val (w, h) = size
+            val p = Layout.puzzle(w, h)
+            assertTrue("$name: the board starts above the home button", p.boardY >= Layout.HomeSafe)
+            assertTrue("$name: the board runs off the bottom", p.boardY + p.board <= h)
+            assertTrue("$name: the board runs off the side", p.boardX + p.board <= w)
+            assertTrue("$name: the board starts off the left", p.boardX >= 0.dp)
+        }
+    }
+
+    @Test
+    fun `loose puzzle pieces do not sit on the board or on each other`() {
+        for ((name, size) in SCREENS) {
+            val (w, h) = size
+            val p = Layout.puzzle(w, h)
+            val boardRight = p.boardX + p.board
+            val boardBottom = p.boardY + p.board
+            for ((x, y) in p.tray) {
+                val onBoard = x > p.boardX && x < boardRight && y > p.boardY && y < boardBottom
+                assertTrue("$name: a loose piece sits on the board at ${x.value}, ${y.value}", !onBoard)
+                assertTrue("$name: a loose piece is off the screen", x <= w && y <= h)
+            }
+            for (i in p.tray.indices) {
+                for (j in i + 1 until p.tray.size) {
+                    val (ax, ay) = p.tray[i]
+                    val (bx, by) = p.tray[j]
+                    val apart = kotlin.math.abs((ax - bx).value) >= p.trayCell.value ||
+                        kotlin.math.abs((ay - by).value) >= p.trayCell.value
+                    assertTrue("$name: loose pieces $i and $j are on top of each other", apart)
+                }
+            }
+        }
+    }
+
     /** Coconut #1 sat under the home button: aiming at a toy left the game. */
     @Test
     fun `no coconut sits under the home button`() {

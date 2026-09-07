@@ -54,6 +54,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -84,40 +85,49 @@ class PaintGame : MiniGame {
      * the line grows.
      */
     private class Stroke2(val color: Color) {
-        val path = Path()
-        var version by mutableIntStateOf(0)
-        var points = 0
-            private set
-        var last: Offset = Offset.Unspecified
+        /**
+         * The line, in FRACTIONS of the canvas rather than in pixels.
+         *
+         * Stored in pixels, a drawing was scrambled the moment the tablet was turned: the
+         * numbers stayed put while the canvas underneath them changed shape. Kept as
+         * fractions, the same drawing simply re-scales into whatever the new canvas is.
+         */
+        private val points = mutableListOf<Offset>()
 
-        fun extendTo(p: Offset) {
-            if (last == Offset.Unspecified) {
-                path.moveTo(p.x, p.y)
-            } else {
-                // Quadratic through the midpoint: smooth, and cheap at 30fps.
-                val mid = (last + p) / 2f
-                path.quadraticTo(last.x, last.y, mid.x, mid.y)
-            }
+        var version by mutableIntStateOf(0)
+        val count: Int get() = points.size
+        var last: Offset = Offset.Unspecified
+            private set
+
+        fun extendTo(p: Offset, size: Size) {
+            if (size.width <= 0f || size.height <= 0f) return
+            points += Offset(p.x / size.width, p.y / size.height)
             last = p
-            points++
             version++
         }
 
         fun finish() {
-            if (last != Offset.Unspecified) path.lineTo(last.x, last.y)
             version++
+        }
+
+        /** The line as it should appear on a canvas of [size], smoothed through the midpoints. */
+        fun pathFor(size: Size): Path = Path().apply {
+            if (points.isEmpty()) return@apply
+            fun at(i: Int) = Offset(points[i].x * size.width, points[i].y * size.height)
+            moveTo(at(0).x, at(0).y)
+            for (i in 1 until points.size) {
+                // Quadratic through the midpoint: smooth, and cheap at 30fps.
+                val a = at(i - 1)
+                val b = at(i)
+                val mid = (a + b) / 2f
+                quadraticTo(a.x, a.y, mid.x, mid.y)
+            }
+            val end = at(points.size - 1)
+            lineTo(end.x, end.y)
         }
     }
 
     private val strokes = mutableStateListOf<Stroke2>()
-
-    /**
-     * What Clear took away.
-     *
-     * Clearing is the only irreversible act anywhere in the app, and this is the only game
-     * with something to lose. One button puts it back — no dialog, because she cannot read one.
-     */
-    private val undoBin = mutableStateListOf<Stroke2>()
 
     override fun onEnter() {
         // A blank page every time — she will expect one (§6).
@@ -166,6 +176,9 @@ class PaintGame : MiniGame {
                         awaitPointerEventScope {
                             while (true) {
                                 val event = awaitPointerEvent()
+                                // Read every time: this is what the fractions are measured
+                                // against, and it changes the moment the device is turned.
+                                val canvas = Size(size.width.toFloat(), size.height.toFloat())
                                 when (event.type) {
                                     PointerEventType.Press -> {
                                         // `changes` lists every pointer down, not just the
@@ -173,7 +186,7 @@ class PaintGame : MiniGame {
                                         // a second finger restarted finger one's stroke.
                                         event.changes.filter { it.pressed && !it.previousPressed }.forEach { c ->
                                             val s = Stroke2(selected.color)
-                                            s.extendTo(c.position)
+                                            s.extendTo(c.position, canvas)
                                             live[c.id.value] = s
                                             strokes += s
                                             while (strokes.size > MAX_STROKES) strokes.removeAt(0)
@@ -187,9 +200,9 @@ class PaintGame : MiniGame {
                                             // scribble delivers several positions per frame
                                             // and dropping them turned curves into polygons.
                                             for (i in 0 until c.historical.size) {
-                                                s.extendTo(c.historical[i].position)
+                                                s.extendTo(c.historical[i].position, canvas)
                                             }
-                                            s.extendTo(c.position)
+                                            s.extendTo(c.position, canvas)
                                             c.consume()
                                         }
                                     }
@@ -217,7 +230,9 @@ class PaintGame : MiniGame {
                         // schedules the redraw as the line grows.
                         if (s.version < 0) return@forEach
                         drawPath(
-                            path = s.path,
+                            // Rebuilt for the canvas as it is now, so turning the device
+                            // re-scales the drawing instead of scrambling it.
+                            path = s.pathFor(size),
                             color = s.color,
                             alpha = wipe.value,
                             style = Stroke(
@@ -274,22 +289,6 @@ class PaintGame : MiniGame {
                 }
             }
 
-            // Undo, beside Clear. It restores a cleared page, or lifts the last stroke.
-            UndoButton(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(top = MinTouch + 4.dp)
-                    .windowInsetsPadding(WindowInsets.safeDrawing),
-                onClick = {
-                    if (undoBin.isNotEmpty()) {
-                        strokes.addAll(undoBin)
-                        undoBin.clear()
-                    } else if (strokes.isNotEmpty()) {
-                        undoBin.add(strokes.removeAt(strokes.lastIndex))
-                    }
-                    scope.audio.effect("brush")
-                },
-            )
 
             // Clear sits in the opposite corner from home, so the two are never confused and
             // neither is ever under a finger that meant to draw.
@@ -304,8 +303,6 @@ class PaintGame : MiniGame {
                         // 600ms wipe, then the page is blank. No dialog — she cannot read
                         // one, and redrawing is free.
                         wipe.animateTo(0f, tween(600))
-                        undoBin.clear()
-                        undoBin.addAll(strokes)
                         strokes.clear()
                         wipe.snapTo(1f)
                     }
@@ -368,48 +365,6 @@ private fun ColourButton(paint: Paint, selected: Boolean, size: Dp, onClick: () 
 }
 
 /** An arrow curling back on itself. The only "put it back" in the app. */
-@Composable
-private fun UndoButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Box(
-        modifier
-            .padding(8.dp)
-            .size(MinTouch)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-                onClick = onClick,
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(
-            Modifier
-                .size(HomeButtonVisual)
-                .clip(CircleShape)
-                .background(Color.White.copy(alpha = 0.92f))
-                .border(3.dp, Color(0xFF3A4454).copy(alpha = 0.35f), CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            Canvas(Modifier.size(HomeButtonVisual * 0.55f)) {
-                val w = size.width
-                drawArc(
-                    color = Color(0xFF3A4454),
-                    startAngle = 30f, sweepAngle = 260f, useCenter = false,
-                    style = Stroke(width = w * 0.16f, cap = StrokeCap.Round),
-                )
-                val tip = Offset(w * 0.86f, w * 0.30f)
-                drawPath(
-                    Path().apply {
-                        moveTo(tip.x, tip.y)
-                        lineTo(tip.x - w * 0.28f, tip.y - w * 0.06f)
-                        lineTo(tip.x - w * 0.06f, tip.y + w * 0.24f)
-                        close()
-                    },
-                    Color(0xFF3A4454),
-                )
-            }
-        }
-    }
-}
 
 @Composable
 private fun ClearButton(onClick: () -> Unit, modifier: Modifier = Modifier) {

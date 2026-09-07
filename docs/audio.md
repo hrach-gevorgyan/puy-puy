@@ -95,6 +95,10 @@ the same list and is what the generator actually reads.
 | `shape_triangle` | եռանկյուն |
 | `shape_star` | աստղ |
 | `shape_heart` | սիրտ |
+| `shape_rectangle` | ուղղանկյուն |
+| `shape_oval` | օվալ |
+| `shape_diamond` | շեղանկյուն |
+| `shape_crescent` | մահիկ |
 
 ## Animals
 

@@ -6,6 +6,42 @@ Notable changes per release. Format loosely follows [Keep a Changelog]; versions
 ## [Unreleased]
 
 ### Added
+- **Կառուցի՛ր** replaces the feeding game: stack five coconuts, biggest at the bottom. A
+  coconut holds if it is smaller than the one below and not dropped too far off its side, and
+  a bad tower leans further every second and then comes down — which is the best part of
+  building one. Neither rule is stated anywhere in the game.
+- Nine shapes in **Ձևե՛ր** — rectangle, oval, diamond and crescent join the original five —
+  with six on screen at a time, scattered at random rather than laid in a row.
+- Encouragement when something does not work out: «Ոչինչ», «Կրկի՛ն փորձիր», about one time in
+  three. «Բան չմնաց» when one thing is left to do.
+- **Պահմտոցի** asks «Ո՞վ է թաքնվել» and leaves four and a half seconds for her to answer
+  first. Nothing waits on it: the animal is already out and every coconut stays touchable.
+- Hearts when she touches him on the hub.
+
+### Changed
+- The app teaches. Colours in Փուչիկներ, size in Կառուցի՛ր, shapes in Ձևե՛ր — and only
+  Պահմտոցի ever asks a question.
+- Praise follows success only, exactly one in ten, and real achievements are always marked.
+  It used to fire on any significant event, so knocking a tower over could be congratulated.
+- No game plays itself. All six used to take the first turn as a demonstration.
+- Every effect is authored in dp and converted once, so a burst is the same gesture on a
+  phone and on a tablet.
+- Layout arithmetic for the tower, the shapes and the puzzle moved into `Layout` with tests.
+
+### Fixed
+- Turning the device mid-drawing scrambled the painting: strokes were stored in pixels, and
+  are now fractions of the canvas.
+- Փազլ printed the answer under the board. There is no ghost now.
+- Կառուցի՛ր crashed on the frame it opened, on a screen that had not been measured yet.
+- A finished tower refused every later coconut and piled them onto one spot.
+- Voice clips peaked at 0 dBFS; there is a limiter at −1.5 dB.
+
+### Removed
+- Undo in Նկարի՛ր: two near-identical buttons in one corner, and the only control whose
+  effect a three-year-old cannot predict.
+- The tale as something played out in a game. It remains what the app is about.
+
+### Added
 - Two more games: **Ձևե՛ր** (post shapes into holes) and **Փազլ** (a 3x3 jigsaw), bringing the
   hub to six.
 - Illustrated hub tiles and a launcher icon, generated and cut by `tools/make_tiles.py` and

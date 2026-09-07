@@ -306,9 +306,9 @@ private val SandLight = Color(0xFFF7F0DE)
 /**
  * Him curled up inside a coconut — the image the whole tale turns on.
  *
- * Shared, because two games show it: Պահմտոցի when a coconut opens on him instead of an
- * animal, and Կերակրի՛ր for the half of the tale where he is stuck in one. [crying] squeezes
- * his eyes shut and opens his mouth.
+ * Drawn by Պահմտոցի when a coconut opens on him instead of an animal. [crying] squeezes his
+ * eyes shut and opens his mouth — kept because the image is the one the whole tale turns on,
+ * and the next game that needs it should not redraw it.
  */
 fun DrawScope.drawCurled(centre: Offset, s: Float, crying: Boolean = false) {
     val fur = Mouse.Body

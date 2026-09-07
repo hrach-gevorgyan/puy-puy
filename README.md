@@ -78,9 +78,10 @@ He asks «Ո՞վ է թաքնվել» and gives her four and a half seconds to an
 ### ⭐ Ձևե՛ր
 **Post the shapes**
 
-A circle, a square, a star. Carry each one to the hole it fits.
+Nine kinds — circle, square, triangle, star, heart, rectangle, oval, diamond, crescent — six
+of them scattered on the sand at a time, each with a hole cut to match.
 
-The wrong hole simply will not take it — it bumps and hops back out, and he does not react at
+The wrong hole simply will not take it. It bumps and hops back out, and he does not react at
 all.
 
 </td>
@@ -113,7 +114,7 @@ Nothing to get right. It is the game she goes to when she is tired of the others
 
 ## 🧠 What it is actually teaching
 
-**Colours** and **size ordering** — and it never asks her anything to do it.
+**Colours**, **size ordering** and **shapes** — and only one game ever asks her anything.
 
 Instruction-following is a five-year-old skill. At three, *"which one is red?"* produces a
 screen where most touches do nothing, and the child hands the tablet back. So the world leans
@@ -239,7 +240,7 @@ including both tablet orientations:
 <details>
 <summary><b>Audio</b></summary>
 
-61 Armenian speech clips in `app/src/main/res/raw`, one voice throughout, generated ahead of
+66 Armenian speech clips in `app/src/main/res/raw`, one voice throughout, generated ahead of
 time and committed — they are build *inputs*, so the app builds and runs with no network.
 
 ```bash

@@ -39,6 +39,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
@@ -61,7 +62,15 @@ enum class Shape(val voiceKey: String, val colour: Color) {
     SQUARE("shape_square", Paint.GREEN.color),
     TRIANGLE("shape_triangle", Paint.YELLOW.color),
     STAR("shape_star", Paint.ORANGE.color),
-    HEART("shape_heart", Paint.RED.color);
+    HEART("shape_heart", Paint.RED.color),
+
+    // Four more, so the board is a choice rather than a formality. Each is distinct in
+    // SILHOUETTE and not only in name — a rectangle against a square, an oval against a
+    // circle: telling those two pairs apart is the whole of the lesson at this age.
+    RECTANGLE("shape_rectangle", Paint.PURPLE.color),
+    OVAL("shape_oval", Paint.BLUE.color),
+    DIAMOND("shape_diamond", Paint.GREEN.color),
+    CRESCENT("shape_crescent", Paint.YELLOW.color);
 
     fun path(centre: Offset, s: Float): Path = when (this) {
         CIRCLE -> Path().apply { addOval(androidx.compose.ui.geometry.Rect(centre, s * 0.5f)) }
@@ -101,6 +110,45 @@ enum class Shape(val voiceKey: String, val colour: Color) {
                 centre.x, centre.y + s * 0.44f,
             )
             close()
+        }
+
+        RECTANGLE -> Path().apply {
+            addRoundRect(
+                androidx.compose.ui.geometry.RoundRect(
+                    centre.x - s * 0.52f, centre.y - s * 0.30f,
+                    centre.x + s * 0.52f, centre.y + s * 0.30f,
+                    androidx.compose.ui.geometry.CornerRadius(s * 0.08f, s * 0.08f),
+                )
+            )
+        }
+        OVAL -> Path().apply {
+            addOval(
+                androidx.compose.ui.geometry.Rect(
+                    centre.x - s * 0.52f, centre.y - s * 0.34f,
+                    centre.x + s * 0.52f, centre.y + s * 0.34f,
+                )
+            )
+        }
+        DIAMOND -> Path().apply {
+            moveTo(centre.x, centre.y - s * 0.52f)
+            lineTo(centre.x + s * 0.40f, centre.y)
+            lineTo(centre.x, centre.y + s * 0.52f)
+            lineTo(centre.x - s * 0.40f, centre.y)
+            close()
+        }
+        CRESCENT -> Path().apply {
+            // A moon: one full circle with a second bitten out of its side.
+            val outer = Path().apply {
+                addOval(androidx.compose.ui.geometry.Rect(centre, s * 0.50f))
+            }
+            val bite = Path().apply {
+                addOval(
+                    androidx.compose.ui.geometry.Rect(
+                        Offset(centre.x + s * 0.26f, centre.y - s * 0.04f), s * 0.44f,
+                    )
+                )
+            }
+            addPath(Path().apply { op(outer, bite, PathOperation.Difference) })
         }
     }
 }
@@ -152,7 +200,11 @@ class ShapesGame : MiniGame {
 
         var area by remember { mutableStateOf(IntSize.Zero) }
 
-        val size = with(density) { (minOf(maxWidthOr(area, density), 400.dp) * 0.30f).toPx() }
+        // Sizes and places are arithmetic, so they live in Layout where LayoutTest asserts
+        // them. Inline, this game laid the shapes ABOVE their holes on a phone held sideways
+        // and capped their size at a fixed width, so a tablet got phone-sized shapes.
+        val geom = with(density) { Layout.shapes(area.width.toDp(), area.height.toDp()) }
+        val size = with(density) { geom.size.toPx() }
         val snap = size * 0.85f
 
         FrameLoop(particles = fx, shake = quake) { dt ->
@@ -162,18 +214,20 @@ class ShapesGame : MiniGame {
         LaunchedEffect(area, round) {
             if (area.width == 0) return@LaunchedEffect
             pieces.clear()
-            val chosen = Shape.entries.shuffled().take(3)
-            val top = with(density) { (Layout.HomeSafe + 40.dp).toPx() }
-            val holeY = top + size * 0.9f
-            val restY = area.height - size * 1.5f
-            // Holes in a DIFFERENT order from the shapes below them: sharing a column makes
-            // the game "drag upwards", and nothing is matched to anything.
+            val chosen = Shape.entries.shuffled().take(geom.count)
+            // The holes are in a grid because she has to be able to FIND the one she wants.
+            // The shapes are scattered, because a tidy row under a tidy row is "drag straight
+            // up" and nothing is ever matched to anything.
             val holeOrder = chosen.indices.shuffled()
+            val taken = mutableListOf<Offset>()
             chosen.forEachIndexed { i, shape ->
                 pieces += Piece(
                     shape = shape,
-                    home = Offset(area.width * (i + 0.5f) / chosen.size, restY),
-                    hole = Offset(area.width * (holeOrder[i] + 0.5f) / chosen.size, holeY),
+                    home = scatter(geom, taken, size, density),
+                    hole = with(density) {
+                        val (hx, hy) = geom.holes[holeOrder[i]]
+                        Offset(hx.toPx(), hy.toPx())
+                    },
                 )
             }
             delay(900)
@@ -194,7 +248,13 @@ class ShapesGame : MiniGame {
 
                         val piece = pieces
                             .minByOrNull { hypot(start.x - it.pos.value.x, start.y - it.pos.value.y) }
-                            ?.takeIf { hypot(start.x - it.pos.value.x, start.y - it.pos.value.y) <= size * 0.75f }
+                            // A hit floor, so more shapes on screen means smaller DRAWINGS
+                            // and not smaller targets: every one clears the 126dp rule however
+                            // little of the screen it takes up.
+                            ?.takeIf {
+                                hypot(start.x - it.pos.value.x, start.y - it.pos.value.y) <=
+                                    maxOf(size * 0.75f, with(density) { 63.dp.toPx() })
+                            }
 
                         if (piece == null) {
                             moment.ack(
@@ -271,6 +331,15 @@ class ShapesGame : MiniGame {
         ) {
             Scenery(seed = 6, modifier = Modifier.fillMaxSize())
 
+            // Halfway up the right edge and BEHIND the shapes, like the tower game. Standing
+            // in the bottom corner he sat on the row of loose shapes and covered whichever one
+            // was nearest him — and the shapes need the whole width now that there are more of
+            // them.
+            Puypuy(
+                controller = scope.puypuy,
+                size = (maxHeight * 0.15f).coerceIn(100.dp, 170.dp),
+                modifier = Modifier.align(Alignment.CenterEnd),
+            )
             Canvas(Modifier.fillMaxSize()) {
                 @Suppress("UNUSED_EXPRESSION") fx.tick
                 translate(quake.offsetX, quake.offsetY) {
@@ -310,12 +379,45 @@ class ShapesGame : MiniGame {
                 fx.draw(this)
             }
 
-            Puypuy(
-                controller = scope.puypuy,
-                size = (maxHeight * 0.22f).coerceIn(150.dp, 240.dp),
-                modifier = Modifier.align(Alignment.BottomEnd),
-            )
         }
+    }
+
+    /**
+     * A free spot on the sand, far enough from the ones already used.
+     *
+     * Twenty tries and then it takes what it can get: a scatter that insists on perfection can
+     * fail to place anything at all on a small screen, and a shape half over another is a much
+     * smaller problem than a shape that never appeared.
+     */
+    private fun scatter(
+        geom: Layout.Shapes,
+        taken: MutableList<Offset>,
+        size: Float,
+        density: androidx.compose.ui.unit.Density,
+    ): Offset {
+        val left = with(density) { geom.scatterLeft.toPx() }
+        val right = with(density) { geom.scatterRight.toPx() }
+        val top = with(density) { geom.scatterTop.toPx() }
+        val bottom = with(density) { geom.scatterBottom.toPx() }
+        var best = Offset(left, top)
+        var bestGap = -1f
+        repeat(20) {
+            val p = Offset(
+                left + kotlin.random.Random.nextFloat() * (right - left).coerceAtLeast(1f),
+                top + kotlin.random.Random.nextFloat() * (bottom - top).coerceAtLeast(1f),
+            )
+            val nearest = taken.minOfOrNull { hypot(p.x - it.x, p.y - it.y) } ?: Float.MAX_VALUE
+            if (nearest > size * 1.05f) {
+                taken += p
+                return p
+            }
+            if (nearest > bestGap) {
+                bestGap = nearest
+                best = p
+            }
+        }
+        taken += best
+        return best
     }
 
     private fun place(piece: Piece, moment: Moment, coroutines: CoroutineScope) {
@@ -339,5 +441,3 @@ class ShapesGame : MiniGame {
     }
 }
 
-private fun maxWidthOr(area: IntSize, density: androidx.compose.ui.unit.Density) =
-    with(density) { if (area.width == 0) 390.dp else area.width.toDp() }

@@ -32,6 +32,7 @@ Engine notes, all verified rather than assumed:
 import argparse
 import asyncio
 import csv
+import json
 import os
 import re
 import shutil
@@ -55,6 +56,13 @@ PIPER_MODEL = Path(__file__).parent / "voices" / "hy_AM-gor-medium.onnx"
 # short words like "խնձոր" are where a shift this size either holds or falls apart.
 MOUSE_PITCH = 1.2489           # +24.9%  (28.75% was shrill; 3% back down)
 MOUSE_TEMPO = 0.9785           # 2.15% slower: 5% dragged, 3% of it given back
+
+# The peak ceiling, as a LINEAR amplitude because that is
+# what alimiter takes — written as "-1.5dB" it is ignored
+# silently. `level=disabled` matters just as much: alimiter auto-levels by default, which
+# normalises every clip back up to full scale, undoes the ceiling, and gives each one a
+# different boost — which is where the spread between clips was coming from.
+PEAK_CEILING = 0.841
 
 # Padding after the trim. Trailing silence costs nothing — only *leading*
 # silence makes a tap feel laggy — and without it the end trim bites into the
@@ -171,8 +179,22 @@ def to_ogg(src: Path, dst_ogg: Path, mouse: bool):
             "highpass=f=150",                        # mud left over from a male source
             "equalizer=f=3000:t=q:w=1.4:g=2.5",      # consonants back
         ]
+    # Loudness: one loudnorm pass, and a peak ceiling after it.
+    #
+    # Three "better" schemes were measured against this one and all three were worse. Two-pass
+    # loudnorm, feeding the first pass's numbers back, gave 11dB of spread across the set:
+    # EBU R128 is GATED, and on a clip of one word it discards most of the material and returns
+    # a figure that moves several dB between similar recordings. Matching on RMS instead gave
+    # 5.7dB — RMS is stable on short clips but it is not perceptual, so clips of different
+    # spectral content end up at the same RMS and different loudness. One plain pass gives
+    # 2.3dB, and that is what ships.
+    #
+    # The ceiling IS worth keeping: without it clips came out peaking at 0 dBFS. `level=disabled`
+    # is load-bearing — alimiter auto-levels by default, which normalises every clip back up to
+    # full scale and undoes the thing it was added for.
     chain += [
         "loudnorm=I=-16:TP=-1.5:LRA=11",
+        f"alimiter=limit={PEAK_CEILING}:level=disabled",
         f"apad=pad_dur={TAIL_PAD_S}",
     ]
 

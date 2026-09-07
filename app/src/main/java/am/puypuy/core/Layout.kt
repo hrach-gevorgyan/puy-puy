@@ -149,6 +149,140 @@ object Layout {
         )
     }
 
+    data class Puzzle(
+        /** Top-left of the board, and the side of the whole square. */
+        val boardX: Dp,
+        val boardY: Dp,
+        val board: Dp,
+        /** Where each loose piece waits, in board order. */
+        val tray: List<Pair<Dp, Dp>>,
+        /**
+         * How big a piece is drawn while it is still waiting. Smaller than a board cell,
+         * because nine cell-sized pieces do not fit beside the board they came from — so a
+         * piece grows as it lands, which also reads as it settling into place.
+         */
+        val trayCell: Dp,
+    ) {
+        val cell: Dp get() = board / 3f
+    }
+
+    /**
+     * Փազլ: a square board, and nine pieces waiting to be carried into it.
+     *
+     * The board is as big as the shorter side allows, and the tray goes wherever there is room
+     * left — under the board when the screen is tall, beside it when the screen is wide. Always
+     * putting the tray underneath starved the board on a phone held sideways: a 34dp piece,
+     * against a 126dp touch floor.
+     */
+    fun puzzle(width: Dp, height: Dp, gap: Dp = 12.dp): Puzzle {
+        val tall = height >= width
+        val cols = if (tall) 5 else 3          // how the nine loose pieces are arranged
+        val rows = (9 + cols - 1) / cols
+
+        val board: Dp
+        val boardX: Dp
+        val boardY: Dp
+        val trayX: Dp
+        val trayY: Dp
+        if (tall) {
+            val usable = height - HomeSafe - gap * 3f
+            board = minOf(width - gap * 2f, usable / (1f + 0.36f * rows)).coerceAtLeast(90.dp)
+            boardX = (width - board) / 2f
+            boardY = HomeSafe + gap
+            trayX = gap
+            trayY = boardY + board + gap
+        } else {
+            val usable = height - HomeSafe - gap * 2f
+            board = minOf(usable, width * 0.58f).coerceAtLeast(90.dp)
+            boardX = gap
+            boardY = HomeSafe + gap
+            trayX = boardX + board + gap
+            trayY = boardY
+        }
+
+        val piece = board / 3f
+        val trayStepX = if (tall) (width - gap * 2f) / cols else (width - trayX - gap) / cols
+        val trayStepY = if (tall) piece * 1.05f else (height - trayY - gap) / rows
+        val tray = (0 until 9).map { i ->
+            trayX + trayStepX * (i % cols + 0.5f) to trayY + trayStepY * (i / cols + 0.5f)
+        }
+        return Puzzle(
+            boardX = boardX,
+            boardY = boardY,
+            board = board,
+            tray = tray,
+            trayCell = minOf(piece, trayStepX * 0.88f, trayStepY * 0.88f),
+        )
+    }
+
+    data class Shapes(
+        /** Side of one shape, and of the hole it fits. */
+        val size: Dp,
+        /** Centre of every hole, laid out in a grid across the top. */
+        val holes: List<Pair<Dp, Dp>>,
+        /** The band of sand the loose shapes are scattered over. */
+        val scatterTop: Dp,
+        val scatterBottom: Dp,
+        val scatterLeft: Dp,
+        val scatterRight: Dp,
+    ) {
+        val count: Int get() = holes.size
+    }
+
+    /**
+     * Ձևե՛ր: a grid of holes across the top, and the same number of shapes scattered loose on
+     * the sand below.
+     *
+     * The holes are ordered because she has to be able to FIND the one she wants; the shapes
+     * are not, because a tidy row beneath a tidy row turns the game into "drag straight up".
+     */
+    fun shapes(width: Dp, height: Dp, want: Int = 6, gap: Dp = 14.dp): Shapes {
+        // How many fit across, and therefore how the grid of holes is shaped.
+        val columns = ((width - gap) / (86.dp + gap)).toInt().coerceIn(3, want)
+        // Two rows of holes where there is room, one where there is not: a phone held sideways
+        // has 170dp under the home button, and two rows plus somewhere to scatter do not fit
+        // in it. Squeezing them produced a scatter band of negative height.
+        for (rows in 2 downTo 1) {
+            val laid = layOut(width, height, columns, rows, want, gap)
+            if (laid.scatterBottom - laid.scatterTop >= laid.size) return laid
+        }
+        return layOut(width, height, columns, 1, want, gap)
+    }
+
+    private fun layOut(
+        width: Dp,
+        height: Dp,
+        columns: Int,
+        rows: Int,
+        want: Int,
+        gap: Dp,
+    ): Shapes {
+        val count = minOf(want, columns * rows)
+        val column = (width - gap * (columns + 1)) / columns
+        // The size is NOT clamped up to a minimum: on a short screen that produced a shape too
+        // big for the space it had to sit in. The touch target is held at 126dp by a floor in
+        // the game itself, so a small drawing is never a small target.
+        val usable = (height - HomeSafe - gap * 3f).coerceAtLeast(2.dp)
+        val size = minOf(column * 0.84f, usable / (rows + 2f)).coerceIn(40.dp, 190.dp)
+
+        val gridWidth = size * columns + gap * (columns - 1)
+        val left = (width - gridWidth) / 2f + size / 2f
+        val holes = (0 until count).map { i ->
+            left + (size + gap) * (i % columns) to
+                HomeSafe + size * 0.6f + (size + gap) * (i / columns)
+        }
+
+        val holesBottom = HomeSafe + size * 0.6f + (size + gap) * (rows - 1) + size / 2f
+        return Shapes(
+            size = size,
+            holes = holes,
+            scatterTop = holesBottom + gap * 2f,
+            scatterBottom = height - size * 0.6f,
+            scatterLeft = size * 0.6f,
+            scatterRight = width - size * 0.6f,
+        )
+    }
+
     /**
      * True when the paint controls fit across the bottom. Five [MinTouch] buttons need 630dp,
      * so on a phone in portrait they run down the right edge instead — the alternative was

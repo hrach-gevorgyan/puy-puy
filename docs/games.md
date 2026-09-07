@@ -69,7 +69,7 @@ else pops just as well and is named every third time. **No colour is ever reques
 that can only add is the one shape of teaching that works at three.
 
 This gives about eight to ten utterances per colour in a session, clustered, instead of the
-three scattered ones a flat one-in-four naming rate produced. `ColourRunTest` asserts it.
+three scattered ones a flat one-in-four naming rate produced. `TeachingRunTest` asserts it.
 
 | Every touch | What happens |
 |---|---|
@@ -187,9 +187,18 @@ in (4.5× the flow limit; it reads as a crash), and the whole quiz layer.
 
 **What it is.** A shape-sorter, the physical toy.
 
-**The loop.** Shapes lie on the sand; shape-holes sit beside them. Push a shape near its hole
-and it **snaps in from a generous distance** with a thump and a puff of sand. Five shapes:
-circle, square, triangle, star, heart.
+**The loop.** Six holes in a grid across the top, and six shapes **scattered at random** on the
+sand below. Carry a shape near its hole and it **snaps in from a generous distance** with a
+thump and a puff of sand.
+
+Nine kinds exist — circle, square, triangle, star, heart, rectangle, oval, diamond, crescent —
+and six are on screen at a time, so the board is a real choice rather than a formality. The set
+is chosen so the hard pairs are in it: a square against a rectangle, a circle against an oval.
+Those two discriminations are the whole of the lesson at this age; a pentagon is only a word
+she does not know.
+
+The scatter matters as much as the count. A tidy row of shapes under a tidy row of holes is
+"drag straight up", and nothing is matched to anything.
 
 **The wrong hole does not punish — it does not accept.** The shape bumps, tips, and hops back
 onto the sand, cheerfully. That is a physical fact about the world, not a judgement about her,
@@ -197,7 +206,7 @@ and it is the only "no" in the app.
 
 | Every touch | What happens |
 |---|---|
-| A shape (tap) | It hops in place and he names it |
+| A shape (tap) | It hops in place and he names it. It does NOT post itself — that finished a round in three taps without anything being matched |
 | A shape (drag) | Follows the finger; near its hole it snaps in; released elsewhere it stays put |
 | A shape at the wrong hole | Bumps, tips, hops back out — no sound of failure, no reaction from him |
 | A filled hole | The shape pops back out to be used again |
@@ -209,7 +218,14 @@ vocabulary is the one genuinely three-year-old-appropriate curriculum in the set
 
 **Silent-safe.** The snap and the bounce-out say everything.
 
-**Session shape.** Five shapes take well under two minutes and the board refills itself.
+**Session shape.** Six shapes take a couple of minutes and the board refills itself.
+
+**Sizes and places are arithmetic**, so they live in `Layout.shapes` and `LayoutTest` asserts
+them: holes above the sand the shapes are scattered on, holes that cannot overlap, and six
+shapes wherever there is room for six — a 320dp-tall split-screen window drops to three,
+because three that fit beat six that do not. Shapes are drawn smaller as more appear; the
+touch target is held at 126dp by a floor in the game, so a smaller drawing is never a smaller
+target.
 
 ---
 
@@ -217,7 +233,9 @@ vocabulary is the one genuinely three-year-old-appropriate curriculum in the set
 
 **What it is.** A four-to-six piece jigsaw of a picture he is in.
 
-**The loop.** The frame shows a faint ghost of the finished picture. Pieces lie around it.
+**The loop.** An empty frame with a grid, and nine pieces around it. There is no ghost of
+the finished picture: every version faint enough to be a hint was still legible enough to be the
+answer, and a board with the answer printed on it is not a puzzle.
 **Tap a piece and it flies to its own slot** — that is the tap fallback, and it means the game
 is completable without a single drag. Drag works too, and snaps from a generous distance.
 
