@@ -3,6 +3,10 @@
 Notable changes per release. Format loosely follows [Keep a Changelog]; versions are tags on
 `main`, and each one is an APK on the Releases page.
 
+## [1.0.1] — 2026-09-18
+
+- The release APK is signed (with a committed debug key), so it installs. 1.0.0 was unsigned and Android refused it.
+
 ## [1.0.0] — 2026-09-18
 
 ### Added

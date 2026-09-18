@@ -8,7 +8,8 @@ plugins {
 
 // Signing is optional and file-driven: CI writes keystore.properties from repository secrets,
 // and a developer can drop one in to sign locally. Without it the release build still succeeds
-// and produces an unsigned APK, which is all the sideload channel needs.
+// and is signed with the committed debug key, app/debug.keystore: Android refuses an unsigned
+// APK, and one fixed key means every release installs over the last one, and over a debug build.
 val keystoreProperties = Properties().apply {
     val file = rootProject.file("keystore.properties")
     if (file.exists()) file.inputStream().use { load(it) }
@@ -22,14 +23,20 @@ android {
         applicationId = "am.puypuy"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.0.1"
 
         // §2.3 — parent gate is off by default.
         buildConfigField("boolean", "PARENT_GATE", "false")
     }
 
     signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
         if (keystoreProperties.getProperty("storeFile") != null) {
             create("release") {
                 storeFile = rootProject.file(keystoreProperties.getProperty("storeFile"))
@@ -42,7 +49,7 @@ android {
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.findByName("release")
+            signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
