@@ -56,7 +56,7 @@ tail, small round ears, pale belly. *Never brown, never realistic, never a rat.*
 Then:
 
 ```bash
-python tools/make_tiles.py       # tools/art/tile_*.webp -> res/drawable-xxhdpi/*.webp
+python tools/make_tiles.py       # tools/art/tile_*.webp -> res/drawable-nodpi/*.webp
 python tools/make_icon.py        # tools/art/icon_source.webp -> mipmap-*/
 ```
 

@@ -25,6 +25,8 @@ import kotlin.random.Random
 class TeachingRun<T : Any>(
     private val all: List<T>,
     private val random: Random = Random.Default,
+    /** Share deliberately off-subject, so there is always something to contrast against. */
+    private val contrast: Float = 0.22f,
 ) {
 
     /**
@@ -57,7 +59,7 @@ class TeachingRun<T : Any>(
      * time as the red ones.
      */
     fun next(): T =
-        if (random.nextFloat() < CONTRAST) all.filter { it != subject }.random(random) else subject
+        if (random.nextFloat() < contrast) all.filter { it != subject }.random(random) else subject
 
     private fun length() = MIN_SECONDS + random.nextFloat() * (MAX_SECONDS - MIN_SECONDS)
 
@@ -65,8 +67,5 @@ class TeachingRun<T : Any>(
         /** How long one subject stays up. Long enough to hear its name several times over. */
         const val MIN_SECONDS = 22f
         const val MAX_SECONDS = 34f
-
-        /** Share deliberately off-subject, so there is always something to contrast against. */
-        const val CONTRAST = 0.22f
     }
 }

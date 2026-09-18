@@ -24,8 +24,9 @@ three, and instruction-following is a five-year-old skill (docs/toddler-ux.md). 
 here has exactly one legal shape:
 
 - **A target may exist, but it may only ever add.** Փուչիկներ shows him holding a balloon in
-  the colour the sky is mostly about. Popping one that matches is named, bigger and louder.
-  Popping anything else pops exactly as well. There is no wrong balloon.
+  a colour, and only balloons in that colour pop. Any other colour skips away from the finger —
+  the owner's call, so the colour matters. It is never refused, never a buzzer: a dodge is
+  still a toy, and `Moment.encourage()` is the only word.
 - **Պահմտոցի asks**, at the owner's instruction: «Ո՞վ է թաքնվել», with four and a half seconds
   for her to answer before he does. The rule that survives is that **nothing waits** — the
   animal is already out, every coconut stays touchable, and the timer governs only when he
@@ -157,7 +158,8 @@ These override "use judgment". Violating one is a bug, not a style difference.
   geometric (the home icon). The six hub tiles and the launcher icon are generated images,
   cut and sized by `tools/make_tiles.py` and `tools/make_icon.py` from the sources in
   `tools/art/`; see [docs/art.md](docs/art.md) for the prompts and the rules they follow.
-  Keep the APK under ~40 MB; it is currently around 9 MB.
+  Keep the APK under ~40 MB; it is currently around 9 MB. The tiles live in
+  `drawable-nodpi`: in a density bucket Android shrank them on load and tablets showed them soft.
 
   **Պույ-պույ himself is still drawn in code**, and has to be: he squashes, stretches, walks,
   waves, blinks, fills out with the tale and mirrors when he turns. A pose swapped between

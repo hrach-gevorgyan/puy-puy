@@ -4,7 +4,7 @@ Turn the generated tile artwork into the hub's drawables.
 
     python tools/make_tiles.py
 
-Reads tools/art/tile_*.webp and writes app/src/main/res/drawable-xxhdpi/tile_*.webp.
+Reads tools/art/tile_*.webp and writes app/src/main/res/drawable-nodpi/tile_*.webp.
 
 Two things are done to each image, both of which are easy to miss and impossible
 to unsee once noticed:
@@ -22,10 +22,12 @@ from pathlib import Path
 from PIL import Image, ImageFilter
 
 SRC = Path("tools/art")
-OUT = Path("app/src/main/res/drawable-xxhdpi")
+OUT = Path("app/src/main/res/drawable-nodpi")
 # A tile card is 140dp on a 411dp phone and 280dp on a tablet held upright, so at 3x and 2x
 # the biggest anyone asks for is ~560px. 324 was sized for the phone alone and went soft on
-# everything larger — the same design has to hold up on a tablet.
+# everything larger — the same design has to hold up on a tablet. And nodpi, not xxhdpi: a
+# density bucket makes Android shrink the bitmap to 192dp on load, and a 2x tablet then
+# stretched a 384px image across a 560px card.
 SIZE = 576
 NAMES = ["balloons", "stack", "coconuts", "shapes", "puzzle", "paint"]
 

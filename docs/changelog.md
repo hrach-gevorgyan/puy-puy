@@ -3,6 +3,14 @@
 Notable changes per release. Format loosely follows [Keep a Changelog]; versions are tags on
 `main`, and each one is an APK on the Releases page.
 
+## [1.0.2] — 2026-09-18
+
+- Փուչիկներ: only balloons in his colour pop; any other colour skips away from the finger.
+  The sky is now about 40% his colour instead of nearly 80%.
+- Ձևե՛ր: the holes move a little each round — rows slide sideways and holes sit high or low.
+- Tablets: the hub tiles ship in `drawable-nodpi`, so a tablet no longer shrinks them on load and
+  stretches them back up soft.
+
 ## [1.0.1] — 2026-09-18
 
 - The release APK is signed (with a committed debug key), so it installs. 1.0.0 was unsigned and Android refused it.

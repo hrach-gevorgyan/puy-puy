@@ -219,15 +219,13 @@ class ShapesGame : MiniGame {
             // The shapes are scattered, because a tidy row under a tidy row is "drag straight
             // up" and nothing is ever matched to anything.
             val holeOrder = chosen.indices.shuffled()
+            val holes = loosen(geom, size, area.width.toFloat(), density)
             val taken = mutableListOf<Offset>()
             chosen.forEachIndexed { i, shape ->
                 pieces += Piece(
                     shape = shape,
                     home = scatter(geom, taken, size, density),
-                    hole = with(density) {
-                        val (hx, hy) = geom.holes[holeOrder[i]]
-                        Offset(hx.toPx(), hy.toPx())
-                    },
+                    hole = holes[holeOrder[i]],
                 )
             }
             delay(900)
@@ -379,6 +377,25 @@ class ShapesGame : MiniGame {
                 fx.draw(this)
             }
 
+        }
+    }
+
+    /**
+     * The grid of holes, loosened: each row slides sideways into the spare margin and each
+     * hole sits a little high or low. Still a grid she can scan — a board that looked the
+     * same every round had her dragging to remembered places instead of matching shapes.
+     */
+    private fun loosen(
+        geom: Layout.Shapes,
+        size: Float,
+        width: Float,
+        density: androidx.compose.ui.unit.Density,
+    ): List<Offset> {
+        val px = with(density) { geom.holes.map { (x, y) -> Offset(x.toPx(), y.toPx()) } }
+        return px.groupBy { it.y }.values.flatMap { row ->
+            val room = minOf(row.minOf { it.x }, width - row.maxOf { it.x }) - size * 0.6f
+            val shift = if (room > 0f) (kotlin.random.Random.nextFloat() * 2f - 1f) * room else 0f
+            row.map { Offset(it.x + shift, it.y + (kotlin.random.Random.nextFloat() * 2f - 1f) * size * 0.08f) }
         }
     }
 

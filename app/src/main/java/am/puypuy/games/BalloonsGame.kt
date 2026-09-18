@@ -47,11 +47,11 @@ import kotlin.math.hypot
 import kotlin.math.sin
 
 /**
- * Փուչիկներ — balloons rise, and every one of them pops.
+ * Փուչիկներ — balloons rise, and the ones in his colour pop.
  *
- * docs/games.md §1 is the specification and [touch] is all of it. There is no wanted colour,
- * no round and no wrong balloon, because nothing is ever asked. A colour is named AFTER a pop,
- * roughly one in four: a label on something she just did.
+ * docs/games.md §1 is the specification and [touch] is all of it. A balloon in any other
+ * colour is not refused and not wrong: it bounces away from the finger, which is its own small
+ * delight, and the colour in his paw is what makes a balloon burst.
  */
 class BalloonsGame : MiniGame {
 
@@ -64,13 +64,13 @@ class BalloonsGame : MiniGame {
     private var pops = 0
 
     /** The colour the sky is mostly about right now, and the one in his paw. */
-    private var run = TeachingRun(Paint.entries)
+    private var run = TeachingRun(Paint.entries, contrast = CONTRAST)
 
     override fun onEnter() {
         balloons.clear()
         clouds.clear()
         pops = 0
-        run = TeachingRun(Paint.entries)
+        run = TeachingRun(Paint.entries, contrast = CONTRAST)
     }
 
     override fun onExit() {
@@ -271,7 +271,7 @@ class BalloonsGame : MiniGame {
             .filter { hypot(p.x - it.x, p.y - it.y) <= maxOf(it.radius, dp(HIT_FLOOR_DP)) }
             .minByOrNull { hypot(p.x - it.x, p.y - it.y) }
         if (hit != null) {
-            pop(moment, hit)
+            if (hit.paint == run.subject) pop(moment, hit) else nudge(moment, hit, p, dp)
             return
         }
 
@@ -370,33 +370,48 @@ class BalloonsGame : MiniGame {
     }
 
     /**
-     * Every balloon pops. One that matches the colour he is holding pops LOUDER — the word, a
-     * bigger burst, a bigger reaction — and one that does not pop is exactly as welcome.
+     * A balloon in his colour pops, and every sixth in a row is a run worth a word.
      *
-     * This is the shape teaching has to take at three: the target only ever adds. There is no
-     * wrong balloon, nothing is refused, and a child who ignores the colour entirely is playing
-     * the game correctly.
+     * The colour is never said on a pop. He names it once when he changes to it and then lets
+     * her play: a word on every pop is the same word four times in ten seconds, which stops
+     * being a label and becomes nagging.
      */
     private fun pop(moment: Moment, b: Balloon) {
         b.popping = 1f
         pops++
-        val matches = b.paint == run.subject
         moment.happened(
             at = Offset(b.x, b.y),
             colours = listOf(b.paint.color, b.paint.color.copy(alpha = 0.75f), Color.White),
-            // No word here. He names a colour when he CHANGES to it, once, and then lets her
-            // play: a word on every matching pop is the same word four times in ten seconds,
-            // which stops being a label and becomes nagging.
             word = null,
-            trauma = if (matches) Shake.Pop * 1.4f else Shake.Pop,
+            trauma = Shake.Pop * 1.4f,
             effect = "star_${(1..3).random()}",
-            count = if (matches) 24 else 14,
-            // Six in a row is a run worth a word of its own.
+            count = 24,
             milestone = pops % 6 == 0,
         )
     }
 
+    /**
+     * Any other colour skips away from the finger and keeps rising. The owner's call: popping
+     * every balloon made his colour decoration, and a balloon that dodges is the contrast
+     * the lesson needs, delivered as play rather than as a refusal.
+     */
+    private fun nudge(moment: Moment, b: Balloon, p: Offset, dp: (Float) -> Float) {
+        val dx = b.x - p.x
+        val side = if (abs(dx) < 1f) (if (kotlin.random.Random.nextBoolean()) 1f else -1f) else dx / abs(dx)
+        b.drift += side * b.radius * 1.6f
+        b.vy -= dp(260f)
+        moment.ack(Offset(b.x, b.y), listOf(b.paint.color, Color.White), count = 4, ttl = 0.6f)
+        moment.encourage()
+    }
+
     private companion object {
+        /**
+         * Share of balloons NOT in his colour. The general 22% filled the sky with his colour
+         * from the first second, and when only his colour pops there must be something else
+         * to tell it from.
+         */
+        const val CONTRAST = 0.6f
+
         /** One lane per this much width, so the sky is as full on a tablet as on a phone. */
         const val LANE_DP = 110f
 

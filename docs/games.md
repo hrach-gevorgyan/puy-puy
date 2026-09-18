@@ -55,26 +55,28 @@ anything touchable inside that corner.
 
 ## 1. Փուչիկներ — balloons
 
-**What it is.** Balloons rise; every one pops.
+**What it is.** Balloons rise; the ones in his colour pop, and the rest skip away.
 
 **The loop.** 8–14 balloons on screen across the full width, rising at 30–60dp/s with a gentle
-sway. Every balloon pops on touch-down. A new one enters ~600ms after any pop, so the sky never
+sway. A balloon in his colour pops on touch-down; any other colour skips aside and up. A new one enters ~600ms after any pop, so the sky never
 empties.
 
-**How it teaches.** The sky runs on colour: balloons arrive in runs of 9–14 with about a fifth
-deliberately off-colour, so one colour dominates for a while and there is always another beside
+**How it teaches.** The sky runs on colour: about 40% of balloons are in his colour and the rest
+are mixed, so one colour dominates for a while and there is always another beside
 it to tell it apart from. He holds a balloon in that colour, permanently visible, and names it
-when the run changes. Popping a match is always named, with a bigger burst; popping anything
-else pops just as well and is named every third time. **No colour is ever requested** — a target
-that can only add is the one shape of teaching that works at three.
+when the run changes. Only his colour pops. Any other balloon is not refused — it skips away
+from the finger, which is fun in itself, and about one time in three he says a kind word
+(`Moment.encourage`). The owner chose this over "every balloon pops", which let a child pop
+the whole sky without the colour ever mattering.
 
 This gives about eight to ten utterances per colour in a session, clustered, instead of the
 three scattered ones a flat one-in-four naming rate produced. `TeachingRunTest` asserts it.
 
 | Every touch | What happens |
 |---|---|
-| A balloon | Squash → stretch → burst into shreds **in that balloon's own colour**; he jumps; the colour is sometimes named |
-| Two balloons at once | Both pop. Multi-touch is a delight, not an error |
+| A balloon in his colour | Squash → stretch → burst into shreds **in that colour**; he jumps; every sixth is praised |
+| A balloon in another colour | It skips sideways and up, with a puff in its colour; sometimes «Ոչինչ» |
+| Two balloons at once | Both answer. Multi-touch is a delight, not an error |
 | Empty sky | Three small bubbles rise from the finger, and every nearby balloon leans toward it — a miss still reads as influence |
 | Him | He grabs the nearest balloon, lifts a little, drops, feet kicking |
 | The balloon in his paw | It pops like any other, he laughs, and he blows up another in the same colour |

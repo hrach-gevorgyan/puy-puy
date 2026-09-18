@@ -1,7 +1,7 @@
 # Պույ-պույ խաղեր
 
 **Six Armenian mini-games for a three-year-old.** Colours, sizes and shapes, on Պույ-պույ's
-island — and it never asks her a single question.
+island — and only one game ever asks her a question.
 
 [![Build](https://github.com/hrach-gevorgyan/puy-puy/actions/workflows/release.yml/badge.svg)](https://github.com/hrach-gevorgyan/puy-puy/actions/workflows/release.yml)
 [![Download APK](https://img.shields.io/github/v/release/hrach-gevorgyan/puy-puy?label=download%20apk&color=3BA55C)](https://github.com/hrach-gevorgyan/puy-puy/releases/latest)
@@ -42,8 +42,8 @@ face, from the greeting to the last word.
 ### 🎈 Փուչիկներ
 **Pop the balloons**
 
-Every balloon pops. The sky runs on one colour at a time and he holds a balloon in that colour,
-naming it once when it changes.
+He holds a balloon in one colour and names it. Balloons in that colour pop; every other one
+skips away from her finger.
 
 Six reds in a row, then six blues — the same word many times, close together, with something
 different beside it.
@@ -239,7 +239,7 @@ including both tablet orientations:
 <details>
 <summary><b>Audio</b></summary>
 
-66 Armenian speech clips in `app/src/main/res/raw`, one voice throughout, generated ahead of
+70 Armenian speech clips in `app/src/main/res/raw`, one voice throughout, generated ahead of
 time and committed — they are build *inputs*, so the app builds and runs with no network.
 
 ```bash
