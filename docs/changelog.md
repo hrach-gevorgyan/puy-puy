@@ -3,7 +3,7 @@
 Notable changes per release. Format loosely follows [Keep a Changelog]; versions are tags on
 `main`, and each one is an APK on the Releases page.
 
-## [Unreleased]
+## [1.0.0] — 2026-09-18
 
 ### Added
 - **Կառուցի՛ր** replaces the feeding game: stack five coconuts, biggest at the bottom. A

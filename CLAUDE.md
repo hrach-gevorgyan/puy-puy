@@ -275,7 +275,6 @@ Honest list, so nobody goes looking.
   `ContrastTest`. This app inherited the palette but not the test.
 - **No instrumented tests.** `LayoutTest` and `ClipsTest` cover the arithmetic and the clip
   set; nothing yet launches the Activity or taps anything.
-- **Rotating mid-drawing scrambles the painting**, because strokes are stored in raw pixels.
 
 ### What the audit already fixed
 

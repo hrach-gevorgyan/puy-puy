@@ -17,8 +17,8 @@ island — and it never asks her a single question.
 [![License](https://img.shields.io/badge/license-MIT-2E2A28)](LICENSE)
 
 Companion app to [**hashvir**](https://github.com/hrach-gevorgyan/hashvir) — the same character,
-the same island, the same voice. hashvir teaches the numbers 1–10; this one teaches colours and
-size.
+the same island, the same voice. hashvir teaches the numbers 1–10; this one teaches colours,
+shapes and size.
 
 ---
 
@@ -90,8 +90,8 @@ all.
 ### 🧩 Փազլ
 **Finish the picture**
 
-A 3×3 jigsaw with the faintest ghost of the picture underneath — a hint that something goes
-here, not which piece.
+A 3×3 jigsaw on an empty board. No ghost of the picture underneath — a board with the answer
+printed on it is not a puzzle.
 
 Pieces have to be carried. Tapping wakes them and nothing more.
 
@@ -101,8 +101,8 @@ Pieces have to be carried. Tapping wakes them and nothing more.
 ### 🎨 Նկարի՛ր
 **Paint**
 
-Four fat colours, several fingers at once, one button that clears the page and one that puts it
-back.
+Four fat colours, several fingers at once, and one button that clears the page. Turn the
+device mid-drawing and the picture re-scales with it.
 
 Nothing to get right. It is the game she goes to when she is tired of the others.
 
@@ -174,7 +174,6 @@ Honest list, so nobody has to go looking:
   before any of it reaches a child.
 - **No contrast test.** hashvir enforces 4.5:1 for every subject against every background. This
   app inherited the palette but not the test.
-- **Rotating mid-drawing scrambles the painting**, because strokes are stored in raw pixels.
 
 ---
 
