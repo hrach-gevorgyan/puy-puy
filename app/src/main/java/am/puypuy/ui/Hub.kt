@@ -103,7 +103,8 @@ fun Hub(
         // a single island rather than six stickers.
         Backdrop(Modifier.fillMaxSize())
 
-        val band = grid.character * 0.62f
+        // His whole height, not most of it: with 62% his head rose into the bottom row of labels.
+        val band = grid.character
         val needsScroll = grid.heightNeeded() > maxHeight - band
         Column(
             Modifier

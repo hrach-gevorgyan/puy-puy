@@ -42,7 +42,7 @@ object Layout {
         // He stands at the bottom. The tiles never enter his band, because a tile a child
         // cannot press without pressing him is a tile that feels broken.
         val character = (minOf(width, height) * 0.26f).coerceIn(120.dp, 240.dp)
-        val forTiles = (height - character * 0.72f).coerceAtLeast(MinTouch + gap * 2)
+        val forTiles = (height - character).coerceAtLeast(MinTouch + gap * 2)
 
         var best: Hub? = null
         for (columns in 1..games) {
@@ -193,8 +193,11 @@ object Layout {
             trayY = boardY + board + gap
         } else {
             val usable = height - HomeSafe - gap * 2f
-            board = minOf(usable, width * 0.58f).coerceAtLeast(90.dp)
-            boardX = gap
+            // He stands bottom-left, so the board starts past him. Flush left, he stood on it.
+            val him = (height * 0.20f).coerceIn(140.dp, 220.dp) * 0.95f
+            board = minOf(usable, width * 0.52f).coerceAtLeast(90.dp)
+            // Only where there is room for him AND a tray: a split screen cannot spare it.
+            boardX = if (width - him - gap * 2f >= board * 1.6f) him else gap
             boardY = HomeSafe + gap
             trayX = boardX + board + gap
             trayY = boardY
@@ -202,7 +205,9 @@ object Layout {
 
         val piece = board / 3f
         val trayStepX = if (tall) (width - gap * 2f) / cols else (width - trayX - gap) / cols
-        val trayStepY = if (tall) piece * 1.05f else (height - trayY - gap) / rows
+        // Upright, the rows sit as close as the pieces allow, so the bottom corner stays clear
+        // for him instead of a piece landing under his feet.
+        val trayStepY = if (tall) minOf(piece, trayStepX * 0.88f) * 1.12f else (height - trayY - gap) / rows
         val tray = (0 until 9).map { i ->
             trayX + trayStepX * (i % cols + 0.5f) to trayY + trayStepY * (i / cols + 0.5f)
         }

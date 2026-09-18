@@ -394,7 +394,7 @@ class ShapesGame : MiniGame {
         val px = with(density) { geom.holes.map { (x, y) -> Offset(x.toPx(), y.toPx()) } }
         return px.groupBy { it.y }.values.flatMap { row ->
             val room = minOf(row.minOf { it.x }, width - row.maxOf { it.x }) - size * 0.6f
-            val shift = if (room > 0f) (kotlin.random.Random.nextFloat() * 2f - 1f) * room else 0f
+            val shift = if (room > 0f) (kotlin.random.Random.nextFloat() - 0.5f) * room else 0f
             row.map { Offset(it.x + shift, it.y + (kotlin.random.Random.nextFloat() * 2f - 1f) * size * 0.08f) }
         }
     }

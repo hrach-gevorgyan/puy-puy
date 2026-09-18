@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
@@ -251,10 +252,14 @@ class PuzzleGame : MiniGame {
                     // Loose pieces: the same window, carried around.
                     for (p in pieces) {
                         if (p.placed) continue
-                        val s = cell * if (p.held) 1.08f else 1f
+                        val s = cell
                         val at = p.pos.value
                         val dx = at.x - (frame.left + (p.col + 0.5f) * cell)
                         val dy = at.y - (frame.top + (p.row + 0.5f) * cell)
+                        // Waiting in the tray a piece is tray-sized, or on a tablet held upright
+                        // nine board-sized pieces ran off both edges; in her hand it is full size.
+                        val k = if (p.held) 1.08f else (trayCell / cell).coerceAtMost(1f)
+                        scale(k, k, at) {
                         rotate(if (p.held) 0f else sin((clock + p.col) * 1.4f) * 3f, at) {
                             drawRect(Color(0xFFF6EEDF), Offset(at.x - s / 2f, at.y - s / 2f), Size(s, s))
                             clipRect(at.x - s / 2f, at.y - s / 2f, at.x + s / 2f, at.y + s / 2f) {
@@ -265,6 +270,7 @@ class PuzzleGame : MiniGame {
                                 Offset(at.x - s / 2f, at.y - s / 2f), Size(s, s),
                                 style = Stroke(width = s * 0.045f),
                             )
+                        }
                         }
                     }
                 }

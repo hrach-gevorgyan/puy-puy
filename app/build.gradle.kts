@@ -23,8 +23,8 @@ android {
         applicationId = "am.puypuy"
         minSdk = 24
         targetSdk = 35
-        versionCode = 3
-        versionName = "1.0.2"
+        versionCode = 4
+        versionName = "1.0.3"
 
         // §2.3 — parent gate is off by default.
         buildConfigField("boolean", "PARENT_GATE", "false")

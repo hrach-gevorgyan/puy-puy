@@ -3,6 +3,16 @@
 Notable changes per release. Format loosely follows [Keep a Changelog]; versions are tags on
 `main`, and each one is an APK on the Releases page.
 
+## [1.0.3] — 2026-09-18
+
+Checked on an emulated Xiaomi Pad 6 (2880×1800, 320dpi), both orientations.
+
+- Փազլ, tablet upright: waiting pieces were drawn board-sized and ran off both edges of the
+  screen; they are now tray-sized, and the tray rows sit close enough to leave him room.
+- Փազլ, sideways: the board starts past him instead of under his feet.
+- Hub: his whole height is kept clear, so his head no longer covers the bottom row of labels.
+- Ձևե՛ր: a row of holes slides at most half the margin, so it never pins to one edge.
+
 ## [1.0.2] — 2026-09-18
 
 - Փուչիկներ: only balloons in his colour pop; any other colour skips away from the finger.
